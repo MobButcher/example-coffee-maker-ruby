@@ -1,4 +1,4 @@
-class CoffeeCup
+class CoffeeCupResource
 
   attr_reader :name
 

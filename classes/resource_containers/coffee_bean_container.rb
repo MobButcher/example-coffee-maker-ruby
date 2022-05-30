@@ -1,6 +1,6 @@
-require_relative 'resource_container'
+require_relative 'base_resource_container'
 
-class CoffeeBeanContainer < ResourceContainer
+class CoffeeBeanContainer < BaseResourceContainer
   RESOURCE = 'coffee beans'.freeze
   UNIT = 'gram'.freeze
   UNIT_PLURAL = 'grams'.freeze

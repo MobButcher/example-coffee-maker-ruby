@@ -1,11 +1,11 @@
-require_relative 'cup_container'
+require_relative 'base_cup_container'
 
-class SingleCupContainer < CupContainer
+class SingleCupContainer < BaseCupContainer
   @cup = nil
   @is_frozen = true
 
   def add(cup)
-    CupContainer.check_cup_validity(cup)
+    BaseCupContainer.check_cup_validity(cup)
     throw RuntimeError, "#{@cup.to_s.capitalize} cup already loaded" unless @cup.nil?
 
     @cup = cup

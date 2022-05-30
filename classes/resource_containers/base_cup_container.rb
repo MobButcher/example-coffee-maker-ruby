@@ -1,6 +1,6 @@
-require_relative 'resource_container'
+require_relative 'base_resource_container'
 
-class CupContainer < ResourceContainer
+class BaseCupContainer < BaseResourceContainer
   RESOURCE = 'cups'.freeze
   UNIT = 'cup'.freeze
   UNIT_PLURAL = 'cups'.freeze
@@ -13,7 +13,7 @@ class CupContainer < ResourceContainer
   end
 
   def has?(cup)
-    CupContainer.check_cup_validity(cup)
+    BaseCupContainer.check_cup_validity(cup)
 
     false
   end
@@ -21,6 +21,6 @@ class CupContainer < ResourceContainer
   protected
 
   def self.check_cup_validity(cup)
-    throw RangeError, "Invalid cup size" unless CupContainer.valid_cup?(cup)
+    throw RangeError, "Invalid cup size" unless BaseCupContainer.valid_cup?(cup)
   end
 end

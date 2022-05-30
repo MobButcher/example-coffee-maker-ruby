@@ -1,4 +1,4 @@
-require_relative 'cup_container'
+require_relative 'resource_containers/base_cup_container'
 
 class CoffeeRecipe
   attr_reader :water, :coffee_beans, :milk, :cup, :time
@@ -10,7 +10,7 @@ class CoffeeRecipe
     unless [water, coffee_beans, milk, time].all? { |resource| resource >= 0 }
       throw RangeError, 'Quantitative resources must be non-negative'
     end
-    throw RangeError, 'Unknown cup type' unless CupContainer.valid_cup?(cup)
+    throw RangeError, 'Unknown cup type' unless BaseCupContainer.valid_cup?(cup)
 
     @water = water
     @coffee_beans = coffee_beans

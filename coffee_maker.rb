@@ -1,8 +1,8 @@
-require_relative 'water_container'
-require_relative 'coffee_bean_container'
-require_relative 'milk_container'
-require_relative 'coffee_recipe'
-require_relative 'coffee_cup'
+require_relative 'classes/resource_containers/water_container'
+require_relative 'classes/resource_containers/coffee_bean_container'
+require_relative 'classes/resource_containers/milk_container'
+require_relative 'classes/resources/coffee_cup_resource'
+require_relative 'classes/coffee_recipe'
 
 class CoffeeMaker
   # Possible states:

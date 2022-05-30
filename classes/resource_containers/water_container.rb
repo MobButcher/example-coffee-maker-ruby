@@ -1,6 +1,6 @@
-require_relative 'resource_container'
+require_relative 'base_resource_container'
 
-class WaterContainer < ResourceContainer
+class WaterContainer < BaseResourceContainer
   RESOURCE = 'water'.freeze
   UNIT = 'milliliter'.freeze
   UNIT_PLURAL = 'milliliters'.freeze

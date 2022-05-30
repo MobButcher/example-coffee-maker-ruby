@@ -1,4 +1,4 @@
-class ResourceContainer
+class BaseResourceContainer
   RESOURCE = 'resource'.freeze
   UNIT = 'unit'.freeze
   UNIT_PLURAL = 'units'.freeze

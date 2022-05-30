@@ -1,10 +1,11 @@
-require_relative 'coffee_maker'
-require_relative 'water_container'
-require_relative 'coffee_bean_container'
-require_relative 'milk_container'
-require_relative 'coffee_recipe'
+require_relative '../../coffee_maker'
+require_relative '../resource_containers/water_container'
+require_relative '../resource_containers/coffee_bean_container'
+require_relative '../resource_containers/milk_container'
+require_relative '../resource_containers/single_cup_container'
+require_relative '../coffee_recipe'
 
-class CoffeeMakerFactory
+class BaseCoffeeMakerBuilder
   @coffee_maker = nil
 
   def start

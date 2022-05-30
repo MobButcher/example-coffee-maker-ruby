@@ -4,7 +4,7 @@
 # After time_elapsed reaches or exceeds TIME_BEFORE_EXPIRY, the resource is no longer safe to use.
 # Using expired resource might clog up the pipes, which will force the resource to break.
 #
-# Intended for ResourceContainer classes.
+# Intended for BaseResourceContainer classes.
 module Expireable
   TIME_BEFORE_EXPIRY = 0
 

@@ -1,7 +1,7 @@
-require_relative 'resource_container'
-require_relative 'expireable'
+require_relative 'base_resource_container'
+require_relative '../mixins/expireable'
 
-class MilkContainer < ResourceContainer
+class MilkContainer < BaseResourceContainer
   include Expireable
   RESOURCE = 'milk'.freeze
   UNIT = 'milliliter'.freeze
