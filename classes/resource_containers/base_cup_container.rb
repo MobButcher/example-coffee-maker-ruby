@@ -1,15 +1,11 @@
 require_relative 'base_resource_container'
+require_relative '../resources/coffee_cup_resource'
 
 class BaseCupContainer < BaseResourceContainer
-  RESOURCE = 'cups'.freeze
-  UNIT = 'cup'.freeze
-  UNIT_PLURAL = 'cups'.freeze
-  UNIT_CONTRACTION = nil
-
-  VALID_CUPS = %i[small, medium, large]
+  RESOURCE = CoffeeCupResource
 
   def self.valid_cup?(cup)
-    VALID_CUPS.include?(cup)
+    CoffeeCupResource::VALID_SIZES.include?(cup)
   end
 
   def has?(cup)
@@ -18,9 +14,9 @@ class BaseCupContainer < BaseResourceContainer
     false
   end
 
-  protected
+  private_class_method :check_cup_validity
 
   def self.check_cup_validity(cup)
-    throw RangeError, "Invalid cup size" unless BaseCupContainer.valid_cup?(cup)
+    throw RangeError, 'Invalid cup size' unless BaseCupContainer.valid_cup?(cup)
   end
 end

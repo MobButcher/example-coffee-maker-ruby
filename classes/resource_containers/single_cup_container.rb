@@ -6,14 +6,27 @@ class SingleCupContainer < BaseCupContainer
 
   def add(cup)
     BaseCupContainer.check_cup_validity(cup)
-    throw RuntimeError, "#{@cup.to_s.capitalize} cup already loaded" unless @cup.nil?
+    raise RuntimeError, "#{@cup.to_s.capitalize} cup already loaded" unless @cup.nil?
 
+    add!(cup)
+  end
+
+  def add!(cup)
     @cup = cup
   end
 
   def remove(cup = nil)
-    throw RuntimeError, 'No cup to remove' if @cup.nil?
+    raise RuntimeError, 'No cup to remove' if @cup.nil?
+
+    remove!
+  end
+
+  def remove!
     @cup = nil
+  end
+
+  def empty
+    remove!
   end
 
   def empty?

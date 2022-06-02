@@ -23,7 +23,7 @@ class CoffeeBeanContainer < BaseResourceContainer
   end
 
   def autogrind=(value)
-    throw TypeError, 'Value must be boolean' unless [true, false].include?(value)
+    raise TypeError, 'Value must be boolean' unless [true, false].include?(value)
     frozen_check
 
     @autogrind = value

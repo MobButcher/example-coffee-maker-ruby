@@ -1,3 +1,5 @@
+require_relative '../validator'
+
 # Marks a resource as one able to expire.
 #
 # When a CoffeeMaker is used, it takes some time, which makes the resource spoil.
@@ -11,6 +13,13 @@ module Expireable
   @time_elapsed = 0
 
   def expired?
-    TIME_BEFORE_EXPIRY.zero? ? false : @time_elapsed >= TIME_BEFORE_EXPIRY
+    self.class::TIME_BEFORE_EXPIRY.zero? ? false : @time_elapsed >= self.class::TIME_BEFORE_EXPIRY
+  end
+
+  def wait(time)
+    Validator.integer?(time)
+    Validator.non_negative?(time)
+
+    @time_elapsed += time
   end
 end

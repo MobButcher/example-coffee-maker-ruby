@@ -1,8 +1,9 @@
-class CoffeeCupResource
+require_relative 'base_resource'
 
-  attr_reader :name
+class CoffeeCupResource < BaseResource
+  NAME = 'cups'.freeze
+  UNIT = 'cup'.freeze
+  UNIT_PLURAL = 'cups'.freeze
 
-  def initialize(name)
-    @name = name
-  end
+  VALID_SIZES = %i[small medium large]
 end

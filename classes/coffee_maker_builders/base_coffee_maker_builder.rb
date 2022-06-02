@@ -6,11 +6,14 @@ require_relative '../resource_containers/single_cup_container'
 require_relative '../coffee_recipe'
 
 class BaseCoffeeMakerBuilder
+  TOKEN = '57f6d568241f187200cd6071b5f495fe1b2d7d8400562ef807777d40871b35ae'.freeze # SHA256("CoffeeMakerSecret")
   @coffee_maker = nil
 
-  def start
-    @coffee_maker = CoffeeMaker._create
+  def build
+    @coffee_maker = CoffeeMaker.new(token: TOKEN)
   end
+
+  private
 
   def water_container(min: 0, max:)
     container = WaterContainer.new.set_bounds(min, max)
@@ -35,7 +38,7 @@ class BaseCoffeeMakerBuilder
 
   def finish
     begin
-      @coffee_maker._finish_construction
+      @coffee_maker.finish_construction
     rescue StandardError => e
       puts "Failed to finish construction:"
       puts e.cause

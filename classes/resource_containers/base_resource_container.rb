@@ -12,10 +12,10 @@ class BaseResourceContainer
   @stored = 0
 
   def add(amount)
-    throw TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
-    throw RangeError, 'Value must be non-negative' unless amount >= 0
+    raise TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
+    raise RangeError, 'Value must be non-negative' unless amount >= 0
     unless amount + @stored <= @max_value
-      throw RangeError, "#{self.class} cannot contain #{@stored} #{contracted_unit_name} of #{self.RESOURCE}"
+      raise RangeError, "#{self.class} cannot contain #{@stored} #{contracted_unit_name} of #{self.RESOURCE}"
     end
 
     add!(amount)
@@ -26,23 +26,24 @@ class BaseResourceContainer
   end
 
   def remove(amount)
-    throw TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
-    throw RangeError, 'Value must be non-negative' unless amount >= 0
+    raise TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
+    raise RangeError, 'Value must be non-negative' unless amount >= 0
     unless amount - @stored >= @min_value
-      throw RangeError, "#{self.class} does not have #{@stored} #{contracted_unit_name} of #{RESOURCE}"
+      raise RangeError, "#{self.class} does not have #{@stored} #{contracted_unit_name} of #{RESOURCE}"
     end
 
     remove!(amount)
   end
 
   def remove!(amount)
-    throw RangeError, "Unable to remove #{amount} #{contracted_unit_name} of #{RESOURCE}" unless @stored >= amount
+    raise RangeError, "Unable to remove #{amount} #{contracted_unit_name} of #{RESOURCE}" unless @stored >= amount
+
     @stored -= amount
   end
 
   def has?(amount)
-    throw TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
-    throw RangeError, 'Value must be non-negative' unless amount >= 0
+    raise TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
+    raise RangeError, 'Value must be non-negative' unless amount >= 0
 
     @stored >= amount
   end
@@ -57,17 +58,21 @@ class BaseResourceContainer
 
   def set_bounds(min, max)
     frozen_check
-    throw TypeError, 'Bounds must be integer' unless min.instance_of?(Integer) && max.instance_of?(Integer)
-    throw RangeError, 'Bounds must be non-negative' unless (min >= 0) && (max >= 0)
+    raise TypeError, 'Bounds must be integer' unless min.instance_of?(Integer) && max.instance_of?(Integer)
+    raise RangeError, 'Bounds must be non-negative' unless (min >= 0) && (max >= 0)
 
     @min_value = min
     @max_value = max
-    return self
+    self
   end
 
   def freeze_bounds
     @is_frozen = true
-    return self
+    self
+  end
+
+  def empty
+    @stored = 0
   end
 
   def empty?
@@ -86,6 +91,6 @@ class BaseResourceContainer
   protected
 
   def frozen_check
-    throw RuntimeError, 'Container bounds have been frozen' if @is_frozen
+    raise RuntimeError, 'Container bounds have been frozen' if @is_frozen
   end
 end

@@ -1,8 +1,6 @@
 require_relative 'base_resource_container'
+require_relative '../resources/water_resource'
 
 class WaterContainer < BaseResourceContainer
-  RESOURCE = 'water'.freeze
-  UNIT = 'milliliter'.freeze
-  UNIT_PLURAL = 'milliliters'.freeze
-  UNIT_CONTRACTION = 'ml'.freeze
+  RESOURCE = WaterResource
 end

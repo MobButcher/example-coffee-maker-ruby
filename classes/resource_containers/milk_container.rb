@@ -1,12 +1,10 @@
 require_relative 'base_resource_container'
 require_relative '../mixins/expireable'
+require_relative '../resources/milk_resource'
 
 class MilkContainer < BaseResourceContainer
   include Expireable
-  RESOURCE = 'milk'.freeze
-  UNIT = 'milliliter'.freeze
-  UNIT_PLURAL = 'milliliters'.freeze
-  UNIT_CONTRACTION = 'ml'.freeze
+  RESOURCE = MilkResource
 
   TIME_BEFORE_EXPIRY = 15
 
@@ -18,5 +16,10 @@ class MilkContainer < BaseResourceContainer
     super
     # If we clean all milk, there is no contaminated milk left.
     @time_elapsed = 0 if @stored.zero?
+  end
+
+  def empty
+    super
+    @time_elapsed = 0
   end
 end
