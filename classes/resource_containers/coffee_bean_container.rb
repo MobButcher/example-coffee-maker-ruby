@@ -1,10 +1,9 @@
 require_relative 'base_resource_container'
+require_relative '../resources/coffee_bean_resource'
+require_relative '../validator'
 
 class CoffeeBeanContainer < BaseResourceContainer
-  RESOURCE = 'coffee beans'.freeze
-  UNIT = 'gram'.freeze
-  UNIT_PLURAL = 'grams'.freeze
-  UNIT_CONTRACTION = 'g'.freeze
+  RESOURCE = CoffeeBeanResource
 
   # Possible states:
   # :ground - coffee beans are ground and ready for consumption
@@ -23,11 +22,10 @@ class CoffeeBeanContainer < BaseResourceContainer
   end
 
   def autogrind=(value)
-    raise TypeError, 'Value must be boolean' unless [true, false].include?(value)
+    Validator.boolean?(value)
     frozen_check
 
     @autogrind = value
-    return self
   end
 
   def safe?

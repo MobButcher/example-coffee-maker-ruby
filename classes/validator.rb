@@ -6,8 +6,19 @@ class Validator
     Validator.of_type?(Integer, input, error: error)
   end
 
+  def self.boolean?(input, error: nil)
+    raise TypeError, error || "Value #{input} must be either true or false" unless [true, false].include?(input)
+  end
+
   def self.of_type?(type, input, error: nil)
     raise TypeError, error || "Value #{input} must be of type #{type}" unless input.instance_of?(type)
+  end
+
+  def self.inherits?(type, input, error: nil)
+    # input.is_a?(type) doesn't work for some reason, so it checks ancestry tree directly
+    unless input.is_a?(Class) ? input.ancestors.include?(type) : input.class.ancestors.include?(type)
+      raise TypeError, error || "Value #{input} must be a subclass of type #{type}"
+    end
   end
 
   def self.non_negative?(input, error: nil)

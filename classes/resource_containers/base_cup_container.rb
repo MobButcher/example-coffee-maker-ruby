@@ -14,8 +14,6 @@ class BaseCupContainer < BaseResourceContainer
     false
   end
 
-  private_class_method :check_cup_validity
-
   def self.check_cup_validity(cup)
     throw RangeError, 'Invalid cup size' unless BaseCupContainer.valid_cup?(cup)
   end

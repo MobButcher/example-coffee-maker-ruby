@@ -1,19 +1,24 @@
+require_relative '../validator'
+
 class BaseResourceContainer
   RESOURCE = 'resource'.freeze
   UNIT = 'unit'.freeze
   UNIT_PLURAL = 'units'.freeze
   UNIT_CONTRACTION = nil
-  @min_value = 0
-  @max_value = 100
-  @is_frozen = false
 
   attr_reader :stored, :is_frozen
 
-  @stored = 0
+  def initialize(min: 0, max: 100, frozen: false)
+    @min_value = min
+    @max_value = max
+    @is_frozen = frozen
+    @stored = 0
+  end
 
   def add(amount)
-    raise TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
-    raise RangeError, 'Value must be non-negative' unless amount >= 0
+    Validator.integer?(amount)
+    Validator.non_negative?(amount)
+
     unless amount + @stored <= @max_value
       raise RangeError, "#{self.class} cannot contain #{@stored} #{contracted_unit_name} of #{self.RESOURCE}"
     end
@@ -26,8 +31,9 @@ class BaseResourceContainer
   end
 
   def remove(amount)
-    raise TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
-    raise RangeError, 'Value must be non-negative' unless amount >= 0
+    Validator.integer?(amount)
+    Validator.non_negative?(amount)
+
     unless amount - @stored >= @min_value
       raise RangeError, "#{self.class} does not have #{@stored} #{contracted_unit_name} of #{RESOURCE}"
     end
@@ -42,8 +48,8 @@ class BaseResourceContainer
   end
 
   def has?(amount)
-    raise TypeError, 'Method requires integer input' unless amount.instance_of?(Integer)
-    raise RangeError, 'Value must be non-negative' unless amount >= 0
+    Validator.integer?(amount)
+    Validator.non_negative?(amount)
 
     @stored >= amount
   end
@@ -58,8 +64,10 @@ class BaseResourceContainer
 
   def set_bounds(min, max)
     frozen_check
-    raise TypeError, 'Bounds must be integer' unless min.instance_of?(Integer) && max.instance_of?(Integer)
-    raise RangeError, 'Bounds must be non-negative' unless (min >= 0) && (max >= 0)
+    Validator.integer?(min)
+    Validator.integer?(max)
+    Validator.non_negative?(min)
+    Validator.non_negative?(max)
 
     @min_value = min
     @max_value = max

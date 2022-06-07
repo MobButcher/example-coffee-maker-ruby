@@ -5,11 +5,14 @@ require_relative 'classes/resource_containers/milk_container'
 require_relative 'classes/resources/water_resource'
 require_relative 'classes/resources/coffee_bean_resource'
 require_relative 'classes/resources/coffee_cup_resource'
+require_relative 'classes/resources/milk_resource'
+require_relative 'classes/resources/base_resource'
 require_relative 'classes/coffee_recipe'
 require_relative 'classes/coffee'
 require_relative 'classes/validator'
 
 class CoffeeMaker
+  # TODO: Make TOKEN private. Somehow.
   TOKEN = '57f6d568241f187200cd6071b5f495fe1b2d7d8400562ef807777d40871b35ae'.freeze # SHA256("CoffeeMakerSecret")
   POSSIBLE_STATES = [
     :under_construction,  # Maker is under construction in CoffeeMakerFactory
@@ -27,26 +30,30 @@ class CoffeeMaker
     CoffeeCupResource,
   ].freeze
 
-  attr_reader :selected_recipe, :coffee_cup, :time_elapsed
-
-  # A subset of POSSIBLE_STATES
-  @state = Set[:under_construction]
-
-  @containers = []
-
-  @recipe_book = []
-  @selected_recipe = nil
-  @coffee_cup = nil
-  @time_elapsed = 0
+  attr_reader :selected_recipe, :coffee_cup, :time_elapsed, :state
 
   def initialize(token:)
     token_check(token)
+
+    # A subset of POSSIBLE_STATES
+    @state = Set.new([:under_construction])
+
+    @containers = []
+
+    @recipe_book = []
+    @selected_recipe = nil
+    @coffee_cup = nil
+    # Time elapsed since the beginning of coffee brewing.
+    # -1 means that there is no coffee currently brewing.
+    # Non-negative values represent units of time.
+    # Non-integer values and integers below -1 are invalid.
+    @time_elapsed = -1
   end
 
   def add_container(container, token:)
     token_check(token)
-    under_construction_check(expected_to_be: false)
-    Validator.of_type?(BaseResourceContainer, container)
+    under_construction_check(expected_to_be: true)
+    Validator.inherits?(BaseResourceContainer, container)
     Validator.frozen?(container)
     unless @containers.none? { |installed| container.class::RESOURCE == installed.class::RESOURCE}
       raise TypeError, "A container for #{container.class::RESOURCE} has already been installed"
@@ -57,7 +64,7 @@ class CoffeeMaker
 
   def add_recipe(recipe, token:)
     token_check(token)
-    under_construction_check
+    under_construction_check(expected_to_be: true)
     broken_check
     Validator.of_type?(CoffeeRecipe, recipe)
     raise ArgumentError, 'Recipe already included' if @recipe_book.include?(recipe)
@@ -67,8 +74,10 @@ class CoffeeMaker
 
   def finish_construction(token:)
     token_check(token)
-    under_construction_check
-    unless self.class::REQUIRED_RESOURCES.all? { |resource| [].find { |container| container::RESOURCE == resource } }
+    under_construction_check(expected_to_be: true)
+    unless self.class::REQUIRED_RESOURCES.all? do |resource|
+      @containers.find { |container| container.class::RESOURCE == resource }
+    end
       raise "#{self.class} is missing some of the containers for required resources"
     end
     raise RangeError, 'Recipe book must not be empty' if @recipe_book.length.zero?
@@ -148,21 +157,21 @@ class CoffeeMaker
       puts 'No recipe selected!'
       return
     end
-    unless @selected_recipe.ingredients.all? { |resource, value| find_container_of(resource).has?(value) }
+    unless !@state.include?(:out_of_resources) ||
+        @selected_recipe.ingredients.all? { |resource, value| find_container_of(resource).has?(value) }
       @state.add(:out_of_resources)
       puts 'Not enough resources!'
       return
     end
+    @state.delete(:out_of_resources)
 
     coffee_bean_container = find_container_of(CoffeeBeanResource)
     coffee_bean_container.grind if !coffee_bean_container.ground? && coffee_bean_container.autogrind?
-    unless safe?
+    unless !@state.include?(:unsafe_resources) || safe?
       @state.add(:unsafe_resources)
       puts 'Coffee maker is unsafe to run!'
       return
     end
-
-    @state.delete(:out_of_resources)
     @state.delete(:unsafe_resources)
 
     start!
@@ -209,6 +218,34 @@ class CoffeeMaker
     take_coffee!
   end
 
+  def refresh_state
+    broken_check
+    under_construction_check
+    raise "#{self.class} is not turned on" if @state.include?(:off)
+
+    @state = @state.subtract([:out_of_resources, :unsafe_resources, :busy, :done, :standby])
+
+    if @time_elapsed == -1
+      @state.add(:standby)
+    elsif @time_elapsed < -1
+      @state.add(:broken)
+    elsif @selected_recipe.nil?
+      # We're in a middle of preparing a recipe, but we have none
+      @state.add(:broken)
+    elsif @time_elapsed < @selected_recipe.time
+      @state.add(:busy)
+    elsif @coffee_cup.nil?
+      finish!
+    else
+      @state.add(:done)
+    end
+
+    unless @selected_recipe.ingredients.all? { |resource, value| find_container_of(resource).has?(value) }
+      @state.add(:out_of_resources)
+    end
+    @state.add(:unsafe_resources) unless safe?
+  end
+
   private
 
   def finish
@@ -218,12 +255,13 @@ class CoffeeMaker
   def finish!
     @state.delete(:busy)
     @state.add(:done)
-    @coffee_cup = Coffee.new(@selected_recipe.name)
+    @coffee_cup = Coffee.new(@selected_recipe.ingredients[CoffeeCupResource], @selected_recipe.name)
   end
 
   def take_coffee!
     result = @coffee_cup
     @coffee_cup = nil
+    @time_elapsed = -1
     result
   end
 
@@ -234,8 +272,8 @@ class CoffeeMaker
   end
 
   def find_container_of(resource)
-    Validator.of_type?(BaseResource, resource)
-    @containers.find { |container| container::RESOURCE == resource }
+    Validator.inherits?(BaseResource, resource)
+    @containers.find { |container| container.class::RESOURCE == resource }
   end
 
   def safe?
@@ -254,7 +292,7 @@ class CoffeeMaker
     finish! if @selected_recipe.time.zero?
   end
 
-  def under_construction_check(expected_to_be: true)
+  def under_construction_check(expected_to_be: false)
     return if (@state.include?(:under_construction)) == expected_to_be
 
     raise "#{self.class} is#{expected_to_be ? ' not' : ''} under construction"
